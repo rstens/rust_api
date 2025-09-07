@@ -1,5 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+DELETE FROM users;
+
 INSERT INTO users (id, name)
 VALUES
     (gen_random_uuid(), 'Alice Dev'),
