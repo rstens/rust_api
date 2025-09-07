@@ -40,9 +40,6 @@ jobs:
       - name: Install SQLx CLI
         run: cargo install sqlx-cli --no-default-features --features native-tls,postgres
 
-      - name: Run migrations
-        run: sqlx migrate run
-
       - name: Build
         run: cargo build --verbose
 
