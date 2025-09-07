@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - run: make db-up
+      - run: make migrate
+      - run: make seed-rust
       - run: cargo build --verbose
       - run: cargo test --all --verbose
       - run: cargo install sqlx-cli --no-default-features --features native-tls,postgres && sqlx migrate run
