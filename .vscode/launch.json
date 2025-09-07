@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Rust API",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/target/debug/rust_api_template",
+      "env": {
+        "DATABASE_URL": "postgres://postgres:postgres@db:5432/rust_api",
+        "SERVER_ADDR": "0.0.0.0:3000"
+      },
+      "cargo": { "args": ["build"], "filter": { "kind": "bin" } },
+      "preLaunchTask": "cargo build"
+    }
+  ]
+}

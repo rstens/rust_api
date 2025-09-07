@@ -1,0 +1,13 @@
+### Health check
+GET http://localhost:3000/health
+
+### Create a new user
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Alice Example"
+}
+
+### List all users
+GET http://localhost:3000/users
