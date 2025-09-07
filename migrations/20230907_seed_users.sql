@@ -5,7 +5,7 @@ COMMIT;
 
 INSERT INTO users (id, name)
 VALUES
-    (gen_random_uuid(), 'Alice Dev'),
-    (gen_random_uuid(), 'Bob Dev'),
-    (gen_random_uuid(), 'Charlie Dev')
+    (1, 'Alice Dev'),
+    (2, 'Bob Dev'),
+    (3, 'Charlie Dev')
 ON CONFLICT DO NOTHING;
