@@ -50,7 +50,7 @@ jobs:
         run: sqlx migrate run
 
       - name: Seed database
-        run: cargo run --bin seed
+        run: psql $DATABASE_URL -f 20230907_seed_users.sql
 
       - name: Build
         run: cargo build --verbose
