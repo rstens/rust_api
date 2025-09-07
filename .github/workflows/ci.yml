@@ -40,8 +40,6 @@ jobs:
       - name: Install SQLx CLI
         run: cargo install sqlx-cli --no-default-features --features native-tls,postgres
 
-<<<<<<< HEAD
-=======
       - name: Enable pgcrypto
         run: psql $DATABASE_URL -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
 
@@ -54,7 +52,6 @@ jobs:
       - name: Seed database
         run: cargo run --bin seed
 
->>>>>>> e00fdf3dba340dba3d3f67922a0ef4b79086884a
       - name: Build
         run: cargo build --verbose
 
