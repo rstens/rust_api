@@ -40,11 +40,6 @@ jobs:
       - name: Install SQLx CLI
         run:  cargo install sqlx-cli --no-default-features --features native-tls,postgres
 
-      - name: Reset database
-        run: |
-          psql $DATABASE_URL -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
-          sqlx migrate run
-
       - name: Build
         run: cargo build
 
