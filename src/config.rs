@@ -10,7 +10,7 @@ impl AppConfig {
     pub fn from_env() -> Self {
         dotenvy::dotenv().ok();
 
-        let mut cfg = config::Config::builder()
+        let cfg = config::Config::builder()
             .set_default("server_addr", "0.0.0.0:3000").unwrap()
             .add_source(config::Environment::default())
             .build()
