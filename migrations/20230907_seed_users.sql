@@ -1,6 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 DELETE FROM users;
+COMMIT;
 
 INSERT INTO users (id, name)
 VALUES
