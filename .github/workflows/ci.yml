@@ -37,12 +37,12 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Reset database
-        run: sqlx migrate run --ignore-missing --source migrations --database-url $DATABASE_URL --revert-all
-
       - name: Install SQLx CLI
         run:  cargo install sqlx-cli --no-default-features --features native-tls,postgres
-
+        
+      - name: Reset database
+        run: sqlx migrate run --ignore-missing --source migrations --database-url $DATABASE_URL --revert-all
+        
       - name: migrate
         run: sqlx migrate run
 
