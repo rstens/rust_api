@@ -7,12 +7,12 @@ use axum::{Router, routing::{get, post}};
 use tower_http::trace::{TraceLayer, DefaultOnResponse};
 use tower_http::request_id::{MakeRequestUuid, PropagateRequestIdLayer, SetRequestIdLayer};
 use tracing::{info, Level};
-use hyper::server::Server;
+use hyper::server;
+use crate::errors::AppError::Server;
 use crate::{
     config::AppConfig,
     db::{DbState, connect_with_retry},
     routes::{health_check, create_user, get_users},
-    errors,
 };
 
 #[tokio::main]
