@@ -3,12 +3,13 @@ mod db;
 mod errors;
 mod routes;
 
-use axum::{Router, routing::{get, post}};
+use axum::{Router, routing::{get, post}, serve};
 use tower_http::trace::{TraceLayer, DefaultOnResponse};
 use tower_http::request_id::{MakeRequestUuid, PropagateRequestIdLayer, SetRequestIdLayer};
 use tracing::{info, Level};
 use tracing_subscriber;
-use hyper::Server;
+use tokio::net::TcpListener;
+
 use crate::{
     config::AppConfig,
     db::{DbState, connect_with_retry},
@@ -36,11 +37,11 @@ async fn main() -> Result<(), errors::AppError> {
         .layer(SetRequestIdLayer::x_request_id(MakeRequestUuid))
         .layer(PropagateRequestIdLayer::x_request_id());
 
+    // ✅ In Axum 0.7 you use TcpListener + axum::serve instead of hyper::Server
+    let listener = TcpListener::bind(&config.server_addr).await?;
     info!("🚀 API running at {}", config.server_addr);
 
-    Server::bind(&config.server_addr.parse().unwrap())
-        .serve(app.into_make_service())
-        .await?;
+    serve(listener, app).await?;
 
     Ok(())
 }
