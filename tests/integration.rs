@@ -1,5 +1,6 @@
 use sqlx::PgPool;
-use rust_api_template::db;
+use uuid::Uuid;
+use crate::db;
 
 #[tokio::test]
 async fn test_insert_user() {
