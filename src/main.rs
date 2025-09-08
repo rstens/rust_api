@@ -39,9 +39,6 @@ async fn main() -> Result<(), rust_api_template::errors::AppError> {
     let config = AppConfig::from_env();
     let pool = connect_with_retry(&config.database_url).await?;
 
-    // 🔁 Run database migrations on startup
-    sqlx::migrate!("./migrations").run(&pool).await?;
-
     let state = DbState { pool };
 
     let app = Router::new()
