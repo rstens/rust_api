@@ -8,6 +8,7 @@ use tower_http::trace::{TraceLayer, DefaultOnResponse};
 use tower_http::request_id::{MakeRequestUuid, PropagateRequestIdLayer, SetRequestIdLayer};
 use tracing::{info, Level};
 use hyper::Server;
+use crate::errors::AppError::Server;
 use crate::{
     config::AppConfig,
     db::{DbState, connect_with_retry},
