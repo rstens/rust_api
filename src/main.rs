@@ -1,6 +1,5 @@
 use axum::{routing::{get, post}, Router, serve};
 use tokio::net::TcpListener;
-use tokio::signal;
 use tower_http::trace::{DefaultOnResponse, TraceLayer};
 use tower_http::request_id::{MakeRequestUuid, PropagateRequestIdLayer, SetRequestIdLayer};
 use tracing::{info, Level};

@@ -38,7 +38,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install SQLx CLI
-        run: cargo install sqlx-cli --no-default-features --features native-tls,postgres
+        run: cargo install -q sqlx-cli --no-default-features --features native-tls,postgres
 
       - name: Enable pgcrypto
         run: psql $DATABASE_URL -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
@@ -53,7 +53,7 @@ jobs:
         run: psql $DATABASE_URL -f 20230907_seed_users.sql
 
       - name: Build
-        run: cargo build --verbose
+        run: cargo build
 
       - name: Run tests
-        run: cargo test --all --verbose
+        run: cargo test --all
