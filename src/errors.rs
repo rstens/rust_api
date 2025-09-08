@@ -14,18 +14,19 @@ pub enum AppError {
     Server(#[from] std::io::Error),
     #[error("Bad request: {0}")]
     BadRequest(String),
-    #[error("Unknown error: {0}")]
+    #[error("{0}")]
     Other(String),
 }
 
 #[derive(Serialize)]
-struct ErrorResponse {
-    error: String,
-}
+struct ErrorResponse { error: String }
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        tracing::error!("❌ Application error: {:?}", self);
+        #[cfg(debug_assertions)]
+        tracing::error!(error = ?self, "request failed");
+        #[cfg(not(debug_assertions))]
+        tracing::warn!(error = %self, "request failed");
 
         let (status, msg) = match &self {
             AppError::Database(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Database error"),
@@ -34,10 +35,7 @@ impl IntoResponse for AppError {
             AppError::Other(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Unknown error"),
         };
 
-        let body = Json(ErrorResponse {
-            error: msg.to_string(),
-        });
+        let body = Json(ErrorResponse { error: msg.to_string() });
         (status, body).into_response()
     }
 }
-

@@ -1,32 +1,47 @@
-mod config;
-mod db;
-mod errors;
-mod routes;
-
-use axum::{Router, routing::{get, post}, serve};
-use tower_http::trace::{TraceLayer, DefaultOnResponse};
+use axum::{routing::{get, post}, Router, serve};
+use tokio::net::TcpListener;
+use tokio::signal;
+use tower_http::trace::{DefaultOnResponse, TraceLayer};
 use tower_http::request_id::{MakeRequestUuid, PropagateRequestIdLayer, SetRequestIdLayer};
 use tracing::{info, Level};
-use tracing_subscriber;
-use tokio::net::TcpListener;
+use tracing_subscriber::EnvFilter;
 
-use crate::{
-    config::AppConfig,
-    db::{DbState, connect_with_retry},
-    routes::{health_check, create_user, get_users},
-};
+use rust_api_template::config::AppConfig;
+use rust_api_template::db::{connect_with_retry, DbState};
+use rust_api_template::routes::{create_user, get_users, health_check};
+
+async fn shutdown_signal() {
+    #[cfg(unix)]
+    {
+        use tokio::signal::unix::{signal, SignalKind};
+        let mut sigint = signal(SignalKind::interrupt()).expect("create SIGINT handler");
+        let mut sigterm = signal(SignalKind::terminate()).expect("create SIGTERM handler");
+        tokio::select! {
+            _ = sigint.recv() => {},
+            _ = sigterm.recv() => {},
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = signal::ctrl_c().await;
+    }
+    tracing::info!("🔻 Shutdown signal received");
+}
 
 #[tokio::main]
-async fn main() -> Result<(), errors::AppError> {
-    let config = AppConfig::from_env();
-
+async fn main() -> Result<(), rust_api_template::errors::AppError> {
     tracing_subscriber::fmt()
-        .with_env_filter("info")
+        .with_env_filter(EnvFilter::from_default_env().add_directive(Level::INFO.into()))
         .with_target(false)
-        .json()
+        .compact()
         .init();
 
+    let config = AppConfig::from_env();
     let pool = connect_with_retry(&config.database_url).await?;
+
+    // 🔁 Run database migrations on startup
+    sqlx::migrate!("./migrations").run(&pool).await?;
+
     let state = DbState { pool };
 
     let app = Router::new()
@@ -37,11 +52,11 @@ async fn main() -> Result<(), errors::AppError> {
         .layer(SetRequestIdLayer::x_request_id(MakeRequestUuid))
         .layer(PropagateRequestIdLayer::x_request_id());
 
-    // ✅ In Axum 0.7 you use TcpListener + axum::serve instead of hyper::Server
     let listener = TcpListener::bind(&config.server_addr).await?;
     info!("🚀 API running at {}", config.server_addr);
 
-    serve(listener, app).await?;
-
+    serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await?;
     Ok(())
 }
