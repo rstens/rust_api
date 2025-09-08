@@ -1,4 +1,8 @@
-use axum::{http::StatusCode, response::{IntoResponse, Response}, Json};
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    Json,
+};
 use serde::Serialize;
 use thiserror::Error;
 
@@ -15,17 +19,25 @@ pub enum AppError {
 }
 
 #[derive(Serialize)]
-struct ErrorResponse { error: String }
+struct ErrorResponse {
+    error: String,
+}
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
+        tracing::error!("❌ Application error: {:?}", self);
+
         let (status, msg) = match &self {
             AppError::Database(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Database error"),
             AppError::Server(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Server error"),
             AppError::BadRequest(_) => (StatusCode::BAD_REQUEST, "Bad request"),
             AppError::Other(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Unknown error"),
         };
-        let body = Json(ErrorResponse { error: msg.to_string() });
+
+        let body = Json(ErrorResponse {
+            error: msg.to_string(),
+        });
         (status, body).into_response()
     }
 }
+
